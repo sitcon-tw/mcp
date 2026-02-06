@@ -2,7 +2,7 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js";
 import fastify from "fastify";
 import { Sessions, streamableHttp } from "fastify-mcp";
-import registerAgendaTools from "./tools.js";
+import registerSessionTools from "./tools.js";
 
 const app = fastify();
 
@@ -12,12 +12,12 @@ app.register(streamableHttp, {
     mcpEndpoint: '/mcp',
     createServer: () => {
         const mcpServer = new McpServer({
-            name: "sitcon-2026-agenda",
+            name: "sitcon-2026",
             version: "0.0.1",
         });
 
         // register shared agenda tools
-        registerAgendaTools(mcpServer);
+        registerSessionTools(mcpServer);
 
         return mcpServer.server as any;
     },
@@ -31,7 +31,7 @@ app.listen({
     host: "0.0.0.0",
 })
     .then(() => {
-        console.log(`Server is running on http://0.0.0.0:${port}/mcp`);
+        console.log(`Server is running on http://localhost:${port}/mcp`);
     })
     .catch(err => {
         console.error(err);
