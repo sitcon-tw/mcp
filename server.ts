@@ -13,7 +13,7 @@ app.register(streamableHttp, {
     createServer: () => {
         const mcpServer = new McpServer({
             name: "sitcon-2026",
-            version: "0.0.1",
+            version: "1.0.0",
         });
 
         // register shared agenda tools
