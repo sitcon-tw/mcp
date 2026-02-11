@@ -19,9 +19,13 @@
     "fastify-mcp": "^2.1.0",
     "fs": "0.0.1-security",
     "path": "^0.12.7",
+    "typescript": "^5.9.3",
     "zod": "^4.3.6"
   },
   "devDependencies": {
-    "@types/node": "^25.2.0"
+    "@types/node": "^25.2.0",
+    "prettier": "^3.8.1",
+    "prettier-plugin-organize-imports": "^4.3.0",
+    "prettier-plugin-packagejson": "^3.0.0"
   }
 }
