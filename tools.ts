@@ -100,7 +100,7 @@ export interface Session {
 }
 
 
-// Helper function for searching sessions
+// Function for searching sessions
 export const searchSessions = (query: string) => {
     const lowerQuery = query.toLowerCase();
 

@@ -1,39 +1,42 @@
+import express from "express";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js";
-import fastify from "fastify";
-import { Sessions, streamableHttp } from "fastify-mcp";
 import registerSessionTools from "./tools.js";
+import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js";
 
-const app = fastify();
+const port = process.env.PORT || 3000;
 
-// Register the MCP plugin
-app.register(streamableHttp, {
-    stateful: true,
-    mcpEndpoint: '/mcp',
-    createServer: () => {
-        const mcpServer = new McpServer({
-            name: "sitcon-2026",
-            version: "1.0.0",
+// Init Express
+const app = express();
+app.use(express.json());
+
+// Init MCP Server
+const mcpServer = new McpServer({
+    name: "SITCON MCP Server",
+    version: "1.0.0",
+});
+registerSessionTools(mcpServer);
+
+// MCP Endpoint
+app.post('/mcp', async (req, res) => {
+    try {
+        const transport = new StreamableHTTPServerTransport({
+            enableJsonResponse: true
         });
+        res.on('close', () => transport.close());
 
-        // register shared agenda tools
-        registerSessionTools(mcpServer);
+        await mcpServer.connect(transport);
+        await transport.handleRequest(req, res, req.body);
+    } catch (error) {
+        console.error("Error handling MCP request:", error);
+        res.status(500).send("Internal Server Error");
+    }
+})
 
-        return mcpServer.server as any;
-    },
-    sessions: new Sessions<StreamableHTTPServerTransport>() as any,
+// Health CHeck
+app.get('/health', (req, res) => {
+    res.send('OK');
 });
 
-const port = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
-
-app.listen({
-    port: port,
-    host: "0.0.0.0",
-})
-    .then(() => {
-        console.log(`Server is running on http://localhost:${port}/mcp`);
-    })
-    .catch(err => {
-        console.error(err);
-        process.exit(1);
-    });
+app.listen(port, () => {
+    console.log(`Server is running on port ${port}`);
+});
