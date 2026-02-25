@@ -146,6 +146,17 @@ export const getSpeaker = (id: string) => {
 	return sessionData.speakers.find(s => s.id === id) || null;
 };
 
+export const getSpeakerByName = (name: string) => {
+	if (!sessionData.speakers || !Array.isArray(sessionData.speakers)) {
+		return [];
+	}
+	const lowerName = name.toLowerCase();
+	return sessionData.speakers.filter(s =>
+		(s.zh?.name?.toLowerCase() || "").includes(lowerName) ||
+		(s.en?.name?.toLowerCase() || "").includes(lowerName)
+	);
+};
+
 export const genSessionShareUrl = (sessionId: string) => {
 	return `https://sitcon.org/2026/agenda/${sessionId}`;
 };
@@ -189,8 +200,9 @@ export function registerSessionTools(server: McpServer) {
 			};
 		}
 	);
+
 	server.tool(
-		"search_speaker",
+		"search_speaker_by_id",
 		"Search for a speaker by their ID.",
 		{
 			query: z.string().describe("The speaker ID to search for.")
@@ -213,6 +225,36 @@ export function registerSessionTools(server: McpServer) {
 					{
 						type: "text",
 						text: JSON.stringify(speaker, null, 2)
+					}
+				]
+			};
+		}
+	);
+
+	server.tool(
+		"search_speaker_by_name",
+		"Search for a speaker by their name.",
+		{
+			query: z.string().describe("The speaker name to search for.")
+		},
+		async ({ query }) => {
+			const speakers = getSpeakerByName(query);
+			if (speakers.length === 0) {
+				return {
+					content: [
+						{
+							type: "text",
+							text: `Speaker with name "${query}" not found.`
+						}
+					],
+					isError: true
+				};
+			}
+			return {
+				content: [
+					{
+						type: "text",
+						text: JSON.stringify(speakers, null, 2)
 					}
 				]
 			};
