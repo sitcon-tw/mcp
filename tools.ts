@@ -151,10 +151,7 @@ export const getSpeakerByName = (name: string) => {
 		return [];
 	}
 	const lowerName = name.toLowerCase();
-	return sessionData.speakers.filter(s =>
-		(s.zh?.name?.toLowerCase() || "").includes(lowerName) ||
-		(s.en?.name?.toLowerCase() || "").includes(lowerName)
-	);
+	return sessionData.speakers.filter(s => (s.zh?.name?.toLowerCase() || "").includes(lowerName) || (s.en?.name?.toLowerCase() || "").includes(lowerName));
 };
 
 export const genSessionShareUrl = (sessionId: string) => {
