@@ -212,8 +212,15 @@ export const searchMemberByDescriptionAndLink = (query: string) => {
 	});
 };
 
-export const genSessionShareUrl = (sessionId: string) => {
+export const genSessionShareUrlSingle = (sessionId: string) => {
 	return `https://sitcon.org/2026/agenda/${sessionId}`;
+};
+
+export const genSessionShareUrlMulti = (sessionIds: string[], n = "我") => {
+	const cleanedIds = sessionIds.map(id => id.trim()).filter(Boolean);
+	const query = encodeURIComponent(cleanedIds.join(","));
+	const displayName = encodeURIComponent(n);
+	return `https://sitcon.org/2026/agenda/?q=${query}&n=${displayName}`;
 };
 
 export function registerSessionTools(server: McpServer) {
@@ -243,13 +250,34 @@ export function registerSessionTools(server: McpServer) {
 			sessionId: z.string().describe("The ID of the session to generate a shareable URL for.")
 		},
 		async ({ sessionId }) => {
-			const url = genSessionShareUrl(sessionId);
+			const url = genSessionShareUrlSingle(sessionId);
 			return {
 				content: [
 					{
 						type: "text",
 						text: url,
 						query: sessionId
+					}
+				]
+			};
+		}
+	);
+
+	server.tool(
+		"gen_session_share_url_multi",
+		"Generate a shareable URL for multiple sessions.",
+		{
+			sessionIds: z.array(z.string()).min(1).describe("The list of session IDs to include in the share URL."),
+			n: z.string().optional().describe("The name shown in the share URL. Defaults to 我.")
+		},
+		async ({ sessionIds, n }) => {
+			const url = genSessionShareUrlMulti(sessionIds, n ?? "我");
+			return {
+				content: [
+					{
+						type: "text",
+						text: url,
+						query: JSON.stringify({ sessionIds, n: n ?? "我" })
 					}
 				]
 			};
