@@ -163,7 +163,8 @@ export const searchSessions = (query: string) => {
 			end: session.end,
 			room: session.room,
 			speakers: session.speakers,
-			tags: session.tags
+			tags: session.tags,
+			url: genSessionShareUrlSingle(session.id)
 		}));
 };
 
